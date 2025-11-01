@@ -1,0 +1,25 @@
+name: Deploy to Firebase Hosting on push
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - run: npm ci
+      - run: npm run build   # ใช้ output: "export" แล้ว จะสร้างโฟลเดอร์ out ให้อัตโนมัติ
+
+      # ใช้ firebase-tools CLI พร้อมโทเคนจาก GitHub Secrets
+      - run: npx firebase-tools deploy --only hosting
+        env:
+          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
