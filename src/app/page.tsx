@@ -12,7 +12,7 @@ export default function Home() {
         fontFamily: "sans-serif",
       }}
     >
-      Hello Sora! 👋
+      Hello Sora v1.3! 👋
     </main>
   );
 }
