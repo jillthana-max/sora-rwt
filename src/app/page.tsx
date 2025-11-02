@@ -1,18 +1,13 @@
+import Link from "next/link";
+
 export default function Home() {
   return (
-    <main
-      style={{
-        height: "100vh",
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        background: "#000",
-        color: "#fff",
-        fontSize: "3rem",
-        fontFamily: "sans-serif",
-      }}
-    >
-      Hello Sora v1.3! 👋
+    <main style={{ height: "100vh", display: "grid", placeItems: "center" }}>
+      <div style={{ textAlign: "center" }}>
+        <h1>Hello Sora! 👋</h1>
+        <p><Link href="/remove">ไปหน้า “ลบลายน้ำ”</Link></p>
+      </div>
     </main>
   );
 }
+
