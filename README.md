@@ -32,6 +32,13 @@ You can start editing the page by modifying `app/page.tsx`. The page auto-update
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
+## Mock Remove Watermark Flow
+
+- Visit [`/remove`](http://localhost:3000/remove) to try the Task05 mock UI.
+- Paste any video URL starting with `http://` or `https://` and click **Remove watermark**.
+- Watch the status panel step through idle, loading, success, or error (e.g., try submitting an invalid URL).
+- A mock download link appears on success, and you can reset the flow with **Start over**.
+
 ## Learn More
 
 To learn more about Next.js, take a look at the following resources:
