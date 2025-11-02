@@ -1,3 +1,15 @@
+```markdown
+## 🎯 Goals & Roadmap (for Codex)
+โปรเจกต์นี้ใช้ Next.js + Firebase Hosting + Cloud Run + Firebase Auth + Firestore
+
+- แผนรวม: ดู `docs/PLAN.md`
+- วิธีคุยกับ Codex: ดู `docs/CODEX_GUIDE.md`
+- งานที่กำลังทำ: **Task05 — UI Remove Watermark**  
+  รายละเอียด: `docs/tasks/task05-ui-remove-watermark.md`
+
+> หมายเหตุ: เราทำงาน “ทีละ Task” ผ่าน Pull Request เท่านั้น
+
+
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
 ## Getting Started
