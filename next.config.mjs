@@ -1,5 +1,8 @@
-/** @type {import("next").NextConfig} */
+// next.config.js
+/** @type {import('next').NextConfig} */
 const nextConfig = {
-  output: "export",
+  output: 'export',         // แทนที่ next export เดิม
+  images: { unoptimized: true }, // จำเป็นสำหรับ static export
+  // trailingSlash: true,    // (ไม่บังคับ) ถ้าอยากให้ URL ลงท้ายด้วย / เสมอ
 };
-export default nextConfig;
+module.exports = nextConfig;
