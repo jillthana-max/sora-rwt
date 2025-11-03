@@ -1,80 +1,79 @@
-name: Deploy to Firebase Hosting (Preview & Production)
+name: Firebase Hosting — Preview & Production
 
 on:
-  pull_request:
-    branches: [ main ]     # สร้างพรีวิวทุกครั้งที่มี PR เข้า main
   push:
-    branches: [ main ]     # deploy จริงเมื่อ push/merge เข้า main
-  workflow_dispatch:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+  pull-requests: write
 
 jobs:
-  build_and_deploy:
+  build:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: '20'
           cache: 'npm'
+      - run: npm ci
+      - run: npm run build    # ต้องสร้างโฟลเดอร์ out/ จาก next export
+      - uses: actions/upload-artifact@v4
+        with:
+          name: site-out
+          path: out
 
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Build static files
-        run: npm run build
-
-      # ---------- PREVIEW: สำหรับ PR ----------
-      - name: Deploy Preview (PR)
-        id: deploy_preview
-        if: ${{ github.event_name == 'pull_request' }}
-        shell: bash
+  preview:
+    # รันเฉพาะ PR จาก branch ภายใน repo (ไม่ใช่ fork)
+    if: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository }}
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: site-out
+          path: out
+      - uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: ${{ secrets.GITHUB_TOKEN }}
+          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          channelId: pr-${{ github.event.number }}
+          projectId: ${{ secrets.FIREBASE_PROJECT_ID }}
+          entryPoint: .
         env:
-          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
-        run: |
-          set -e
-          echo "Deploying preview channel for PR #${{ github.event.pull_request.number }}"
+          FIREBASE_CLI_EXPERIMENTS: webframeworks
 
-          # ดีพลอยช่องพรีวิว (ชื่อ channel = pr-<หมายเลข PR>)
-          OUT=$(npx firebase-tools hosting:channel:deploy "pr-${{ github.event.pull_request.number }}" \
-            --only hosting \
-            --project sora-rwt | tee /tmp/deploy.log)
-
-          # ดึง URL จาก log (grep แบบตรงไปตรงมา)
-          URL=$(grep -Eo 'https?://[a-zA-Z0-9\-\.]+\.web\.app' /tmp/deploy.log | head -n 1)
-
-          if [ -z "$URL" ]; then
-            echo "ไม่พบ Preview URL ใน log"
-            echo "preview_url=" >> $GITHUB_OUTPUT
-          else
-            echo "พบ Preview URL: $URL"
-            echo "preview_url=$URL" >> $GITHUB_OUTPUT
-          fi
-
-      - name: Comment Preview URL on PR
-        if: ${{ github.event_name == 'pull_request' }}
-        uses: actions/github-script@v7
+  preview-skip-fork:
+    if: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name != github.repository }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/github-script@v7
         with:
           script: |
-            const url = `${{ steps.deploy_preview.outputs.preview_url }}`.trim();
-            const pr = context.payload.pull_request;
-            const body = url
-              ? `🔍 **Preview available:** ${url}\n\n📱 ทดสอบบนมือถือได้เลย แล้วค่อยกด **Merge** เพื่อขึ้นเว็บจริง`
-              : `⚠️ ไม่พบ Preview URL จากขั้นตอนดีพลอย โปรดเปิดดู logs ของงานนี้ (Deploy Preview)`;
-            await github.rest.issues.createComment({
+            github.rest.issues.createComment({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              issue_number: pr.number,
-              body
-            });
+              issue_number: context.issue.number,
+              body: 'ℹ️ Preview ถูกข้ามเพราะ PR มาจาก fork (GitHub ไม่เปิด secrets ให้). สร้าง branch ใน repo แล้วเปิด PR ใหม่เพื่อได้ Preview URL.'
+            })
 
-      # ---------- PRODUCTION: เมื่อ push/merge เข้า main ----------
-      - name: Deploy Production (main)
-        if: ${{ github.ref == 'refs/heads/main' && github.event_name == 'push' }}
-        env:
-          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
-        run: |
-          npx firebase-tools deploy --only hosting --project sora-rwt
+  production:
+    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: site-out
+          path: out
+      - uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: ${{ secrets.GITHUB_TOKEN }}
+          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          channelId: live
+          projectId: ${{ secrets.FIREBASE_PROJECT_ID }}
+          entryPoint: .
