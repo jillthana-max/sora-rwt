@@ -18,15 +18,22 @@ jobs:
         with:
           node-version: '20'
           cache: 'npm'
-      - run: npm ci
-      - run: npm run build    # ต้องสร้างโฟลเดอร์ out/ จาก next export
+          cache-dependency-path: package-lock.json
+      - name: Install deps
+        run: npm ci
+      - name: Build (export to out/)
+        run: npm run build     # ตอนนี้ build = build + export แล้ว
+      - name: Sanity check files
+        run: |
+          test -f firebase.json && echo "OK: firebase.json" || (echo "MISS: firebase.json" && exit 1)
+          test -f .firebaserc && echo "OK: .firebaserc" || (echo "MISS: .firebaserc" && exit 1)
+          test -d out && echo "OK: out dir" || (echo "MISS: out dir" && exit 1)
       - uses: actions/upload-artifact@v4
         with:
           name: site-out
           path: out
 
   preview:
-    # รันเฉพาะ PR จาก branch ภายใน repo (ไม่ใช่ fork)
     if: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository }}
     needs: build
     runs-on: ubuntu-latest
