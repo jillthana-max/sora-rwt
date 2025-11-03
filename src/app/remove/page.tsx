@@ -279,7 +279,7 @@ export default function Page() {
       <footer className="mt-8 border-t border-slate-200 bg-white/60">
         <div className="mx-auto max-w-6xl px-4 py-6 text-xs text-slate-500 flex flex-col sm:flex-row items-center justify-between gap-2">
           <p>© {new Date().getFullYear()} Sora2 Demo UI • เวอร์ชันสาธิตเพื่อประกอบการพัฒนา</p>
-          <p>เมื่อพร้อมต่อจริง เราจะเชื่อม Google Login, ฐานข้อมูลเครดิต.., Sora API, และระบบดาวน์โหลดผ่าน Signed URL</p>
+          <p>เมื่อพร้อมต่อจริง เราจะเชื่อม Google Login, ฐานข้อมูลเครดิต..., Sora API, และระบบดาวน์โหลดผ่าน Signed URL</p>
         </div>
       </footer>
     </div>
