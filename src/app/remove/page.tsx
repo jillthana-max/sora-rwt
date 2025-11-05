@@ -89,7 +89,7 @@ export default function Page() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-slate-100 text-slate-800">
+    <div className="min-h-screen bg-linear-to-b from-slate-50 to-slate-100 text-slate-800">
       {/* Top Bar */}
       <header className="sticky top-0 z-10 backdrop-blur bg-white/70 border-b border-slate-200">
         <div className="mx-auto max-w-6xl px-4 py-3 flex items-center justify-between">
